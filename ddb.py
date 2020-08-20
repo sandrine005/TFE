@@ -185,9 +185,9 @@ def supprime():
 
 def windisp():
     global tabledisp, fendisp
-    fendisp = Tk()
+    fendisp = Toplevel(root)
     fendisp.title("Disponibilité")
-    tabledisp = ttk.Treeview(root)
+    tabledisp = ttk.Treeview(fendisp)
     tabledisp.grid(row=0, columnspan=5, sticky=N + E + S + W, padx=10, pady=10)
     tabledisp ["columns"] = ("col1", "col2", "col3", "col4", "col5", "col6")
     tabledisp.column("#1", width=30, minwidth=30)
@@ -205,21 +205,20 @@ def windisp():
     ascenseurY = ttk.Scrollbar(fendisp, orient=VERTICAL, command=tabledisp.yview)
     ascenseurY.grid(row=0,column=5)
     tabledisp.config(show="headings", height=5, selectmode="browse", yscrollcommand=ascenseurY.set)
-
-    Button(fendisp, text="ajouter une dispo", command=voirdispo).grid(row=1,column=0,padx=10,sticky=E+W)
+    ref = tables.item(tables.focus())["values"][0]
+    Button(fendisp, text="ajouter une dispo",command= lambda: voirdispo(ref) ).grid(row=1,column=0,padx=10,sticky=E+W)
     Button(fendisp, text="modifier une dispo", command=modifiedispo).grid(row=1,column=1,padx=10,sticky=E+W)
     Button(fendisp, text="supprimer une dispo", command=supprimedispo).grid(row=1,column=2,padx=10,sticky=E+W)
     Button(fendisp, text="Quitter", command=fendisp.destroy).grid(row=1,column=3,padx=10,sticky=E+W)
-    db.commit()
-    remplissage()
+    remplissagedisp(ref)
 
 
-def remplissagedisp():
+def remplissagedisp(ref):
     global tabledisp
     # Vider la liste
     tabledisp.delete(*tabledisp.get_children())
     # Récupérer la liste de la db
-    ref = tabledisp.item(tabledisp.focus())["values"][0]
+    ref = tables.item(tables.focus())["values"][0]
     cur.execute("SELECT * FROM disponibilites WHERE livre_ref =?", (ref,))
     dispos = cur.fetchall()
     # Ajouter les livres dans le treeview
@@ -228,7 +227,7 @@ def remplissagedisp():
 
 
 # Nouvelle fenetre disponibilités
-def voirdispo():
+def voirdispo(ref):
         global windispo
         windispo = Toplevel(root)
         windispo.title("Disponibilité du livre selectionner")
@@ -251,45 +250,22 @@ def voirdispo():
         Entry(windispo, text=classe, width=30).grid(row=3, column=1, columnspan=2, padx=5)
         Entry(windispo, text=ecole, width=30).grid(row=4, column=1, columnspan=2, padx=5)
         # Boutons
-        Button(windispo, text="Ajouter", command=ajoutedispo).grid(row=7, column=0, padx=5, sticky=E + W)
+        Button(windispo, text="Ajouter", command= lambda: ajoutedispo(ref,nom.get(),email.get(),gsm.get(),classe.get(),ecole.get())).grid(row=7, column=0, padx=5, sticky=E + W)
         Button(windispo, text="Quitter", command=windispo.destroy).grid(row=7, column=3, padx=5, pady=10, sticky=E + W)
-        remplissage()
+
 
 def modifiedispo():
     pass
-def supprimedispo():
-    global tabledisp
-    if (tabledisp.focus()):
-        nom = tabledisp.item(tabledisp.focus())["values"][1]
-        email = tabledisp.item(tabledisp.focus())["values"][2]
-        livre_ref = tabledisp.item(tabledisp.focus())["values"][0]
-        confirm = askokcancel("Ok ou annuler", "Suppression de " + nom + " " + email + " ?")
-        if confirm:
-            # supprimer le record
-            cur.execute("DELETE FROM disponibilites WHERE livre_ref = ?", (livre_ref,))
-            db.commit()
-            remplissagedisp()
-    else:
-        showinfo("Attention", "Veuillez sélectionner \nune ligne avant de \nsupprimer")
+def supprimedispo(ref,nom,email,gsm,classe,ecole):
+    pass
 
-def ajoutedispo():
 
-    ref = tabledisp.item(tabledisp.selection())["values"][0]
-    nom = tabledisp.item(tabledisp.selection())["values"][1]
-    email= tabledisp.item(tabledisp.selection())["values"][2]
-    gsm = tabledisp.item(tabledisp.selection())["values"][3]
-    classe = tabledisp.item(tabledisp.selection())["values"][4]
-    ecole = tabledisp.item(tabledisp.selection())["values"][5]
 
-    cur.execute("INSERT INTO disponibilites(nom, email,gsm,classe, ecole, livre_ref)VALUES (?,?,?,?,?,?)",
-                (nom.get(), email.get(), gsm.get(), classe.get(), ecole.get(),ref))
-    db.commit()
-def ajoutedispodb(ref,nom,email,gsm,classe,ecole):
-    global tabledisp
-    tabledisp.destroy()
-    ref = tabledisp.item(tabledisp.focus())["values"][0]
-    cur.execute("SELECT*disponibilites WHERE livre_ref= ?", (ref))
-    db.commit()
+def ajoutedispo(ref, nom, email, gsm, classe, ecole):
+        cur.execute("INSERT INTO disponibilites(nom, email,gsm,classe, ecole, livre_ref)VALUES (?,?,?,?,?,?)",
+                    (nom, email, gsm, classe, ecole, ref))
+        db.commit()
+        remplissagedisp(ref)
 
 
 if __name__ == '__main__':
