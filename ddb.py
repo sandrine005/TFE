@@ -75,7 +75,7 @@ def ajoutL():
     cur.execute(query, ("1943 l'espoir du retour", "Desplat anne", 789))
     cur.execute(query, ("1944-1945 Les sabots", "Vittori Jean", 367))
     db.commit()
-# Premiere fenetre livres
+# Premiere fenetre livres-> crud
 # ref, titre, auteur, codeISBN
 # Bt - Ajouter un livre commande ajoute
 #    - Voir dispo commande windispo
@@ -83,47 +83,47 @@ def ajoutL():
 #    - Quitter commande destroy
 def fenetre():
     global tables, root
-    # creer la premiere fenêtre
+    # créer la premiere fenêtre
     root = Tk()
     root.title("Livres")
     tables = ttk.Treeview(root)
     tables.grid(row=0, columnspan=4, sticky=N + E + S + W, padx=10, pady=10)
     # Déclaration des colonnes
     tables["columns"] = ("col1", "col2", "col3", "col4")
-    # taille des colonnes
+    # Taille des colonnes
     tables.column("#1", width=30, minwidth=30)
     tables.column("#2", width=200, minwidth=200)
     tables.column("#3", width=200, minwidth=200)
     tables.column("#4", width=200, minwidth=200)
-    # noms des colonnes
+    # Noms des colonnes
     tables.heading("col1", text="Réf", anchor=W)
     tables.heading("col2", text="Titre", anchor=W)
     tables.heading("col3", text="Auteur", anchor=W)
     tables.heading("col4", text="code ISBN", anchor=W)
-    # Paramètré la scrollbar
+    # Paramètrer la scrollbar
     ascenseurY = ttk.Scrollbar(root, orient=VERTICAL, command=tables.yview)
-    # positionné la scrollbar
+    # Positionner la scrollbar
     ascenseurY.grid(row=0, column=6)
-    # configurer notre treeview
+    # Configurer notre treeview
     tables.config(show="headings", height=5, selectmode="browse", yscrollcommand=ascenseurY.set)
     remplissage()
-    # boutons
+    # Boutons
     Button(root, text="Ajouter un livre", command=ajoute).grid(row=1, column=0, padx=10, pady=10, sticky=E + W)
-    # Button(root, text="Voir les disponibilités",command=voirdispo).grid(row=1, column=1, padx=10, sticky=E+W)
     Button(root, text="Voir les disponibilités", command=windisp).grid(row=1, column=1, padx=10, sticky=E + W)
     Button(root, text="Supprimer", command=supprime).grid(row=1, column=2, padx=10, sticky=E + W)
     Button(root, text="Quitter", command=root.destroy).grid(row=1, column=3, padx=10, sticky=E + W)
-# fenetre qui repond au bouton ajouter un livre
+
+# Fenêtre qui repond au bouton ajouter un livre
 def ajoute():
     global win
-    # création d'une fenêtre modal
+    # Création d'une fenêtre modal
     win = Toplevel(root)
     win.title("Ajout d'un livre")
     # Déclaration des variables du formulaire
     titre = StringVar()
     auteur = StringVar()
     code = StringVar()
-    # etiquette
+    # Etiquettes
     Label(win, text="Titre").grid(row=0, column=0, pady=5, padx=5)
     Label(win, text="Auteur").grid(row=1, column=0, pady=5, padx=5)
     Label(win, text="code ISBN").grid(row=2, column=0, pady=5, padx=5)
@@ -150,12 +150,12 @@ def ajoutDb(titre, auteur, code):
         db.commit()
         remplissage()
 
-# Permet de vider, recuperer et ajouter des livres ds la fenetre
+# Permet de vider, récuperer et ajouter des livres ds la fenêtre
 def remplissage():
     global tables
-    # vider la liste
+    # Vider la liste
     tables.delete(*tables.get_children())
-    # récupérer la liste de la db
+    # Récupérer la liste de la db
     cur.execute("SELECT * FROM livres")
     livres = cur.fetchall()
     # Ajouter les livres dans le treeview
@@ -177,7 +177,7 @@ def supprime():
     else:
         showinfo("Attention", "Veuillez sélectionner \nune ligne avant de \nsupprimer")
 
-# Nouvelle fenetre diponibilité
+# Nouvelle fenetre diponibilité-> crud
 # Bt ajouter une dispo commande voirdispo
 #    modifier une dispo commande modifiedispo
 #    supprimer une dispo commande supprimedispo
@@ -216,18 +216,18 @@ def windisp():
 
 def remplissagedisp():
     global tabledisp
-    # vider la liste
+    # Vider la liste
     tabledisp.delete(*tabledisp.get_children())
-    # récupérer la liste de la db
-    idAajouter = tabledisp.item(tabledisp.focus())["values"][0]
-    cur.execute("SELECT * FROM disponibilites WHERE livre_ref =?", (idAajouter,))
+    # Récupérer la liste de la db
+    ref = tabledisp.item(tabledisp.focus())["values"][0]
+    cur.execute("SELECT * FROM disponibilites WHERE livre_ref =?", (ref,))
     dispos = cur.fetchall()
     # Ajouter les livres dans le treeview
     for dispo in dispos:
         tabledisp.insert('', 'end', values=(dispo[0], dispo[1], dispo[2], dispo[3], dispo[4], dispo[5]))
 
 
-# nouvelle fenetre
+# Nouvelle fenetre disponibilités
 def voirdispo():
         global windispo
         windispo = Toplevel(root)
@@ -238,14 +238,12 @@ def voirdispo():
         gsm = StringVar()
         classe = StringVar()
         ecole = StringVar()
-        # etiquette
+        # Etiquette
         Label(windispo, text="Nom").grid(row=0, column=0, pady=5, padx=5)
         Label(windispo, text="Email").grid(row=1, column=0, pady=5, padx=5)
         Label(windispo, text="Gsm").grid(row=2, column=0, pady=5, padx=5)
         Label(windispo, text="Classe").grid(row=3, column=0, pady=5, padx=5)
         Label(windispo, text="Ecole").grid(row=4, column=0, pady=5, padx=5)
-        #tmp = tabledisp.selection()
-        #Label(windispo, text=tabledisp.item(tmp)["values"][1]).grid(row=5, column=0, pady=5, padx=5)
         # Les entrys
         Entry(windispo, text=nom, width=30).grid(row=0, column=1, columnspan=2, padx=5)
         Entry(windispo, text=email, width=30).grid(row=1, column=1, columnspan=2, padx=5)
@@ -284,12 +282,13 @@ def ajoutedispo():
     ecole = tabledisp.item(tabledisp.selection())["values"][5]
 
     cur.execute("INSERT INTO disponibilites(nom, email,gsm,classe, ecole, livre_ref)VALUES (?,?,?,?,?,?)",
-                (nom.get(), email.get(), gsm.get(), classe.get(), ecole.get(), ref))
+                (nom.get(), email.get(), gsm.get(), classe.get(), ecole.get(),ref))
     db.commit()
-def recup():
+def ajoutedispodb(ref,nom,email,gsm,classe,ecole):
     global tabledisp
-    idAajouter = tabledisp.item(tabledisp.focus())["values"][0]
-    cur.execute("SELECT*disponibilites WHERE livre_ref= ?", (idAajouter))
+    tabledisp.destroy()
+    ref = tabledisp.item(tabledisp.focus())["values"][0]
+    cur.execute("SELECT*disponibilites WHERE livre_ref= ?", (ref))
     db.commit()
 
 
