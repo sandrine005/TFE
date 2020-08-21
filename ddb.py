@@ -303,8 +303,8 @@ def modifiedispo():
 
 
 def modifiedispodb(ref,nom,email,gsm,classe,ecole):
-    global windispo
-    windispo.destroy()
+    global windispom
+    windispom.destroy()
     if nom != "" and email != "":
         cur.execute("UPDATE disponibilites SET nom = ?, email = ?, gsm = ? WHERE livre_ref = ?", (nom,email, gsm,classe,ecole,ref))
         db.commit()
@@ -312,6 +312,7 @@ def modifiedispodb(ref,nom,email,gsm,classe,ecole):
 
 def supprimedispo(ref,nom,email,gsm,classe,ecole):
     pass
+
 
 
 
