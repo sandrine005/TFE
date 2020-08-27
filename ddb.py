@@ -263,9 +263,58 @@ def voirdispo(ref):
 
 
 def modifiedispo(ref):
-    pass
+    global windispo2,tabledisp
+    if (tabledisp.focus()):
+        tnom = tabledisp.item(tabledisp.focus())["values"][1]
+        temail = tabledisp.item(tabledisp.focus())["values"][2]
+        tgsm = tabledisp.item(tabledisp.focus())["values"][3]
+        tclasse = tabledisp.item(tabledisp.focus())["values"][4]
+        tecole = tabledisp.item(tabledisp.focus())["values"][5]
+        ref = tables.item(tables.focus())["values"][0]
+        # création d'une fenêtre modal
+        windispo2 = Toplevel(root)
+        windispo2.title("modif ")
+        # Déclaration des variables du formulaire
+        nom = StringVar()
+        email = StringVar()
+        gsm = StringVar()
+        classe = StringVar()
+        ecole = StringVar()
+        # Initialiser les variables
+        nom.set(tnom)
+        email.set(temail)
+        gsm.set(tgsm)
+        classe.set(tclasse)
+        ecole.set(tecole)
 
+        # etiquette
+        Label(windispo2, text="Nom").grid(row=0, column=0, pady=5, padx=5)
+        Label(windispo2, text="email").grid(row=1, column=0, pady=5, padx=5)
+        Label(windispo2, text="gsm").grid(row=2, column=0, pady=5, padx=5)
+        Label(windispo2, text="classe").grid(row=3, column=0, pady=5, padx=5)
+        Label(windispo2, text="ecole").grid(row=4, column=0, pady=5, padx=5)
+        # Les entrys
+        Entry(windispo2, textvariable=nom, width=30).grid(row=0, column=1, columnspan=2, padx=5)
+        Entry(windispo2, textvariable=email, width=30).grid(row=1, column=1, columnspan=2, padx=5)
+        Entry(windispo2, textvariable=gsm, width=30).grid(row=2, column=1, columnspan=2, padx=5)
+        Entry(windispo2, textvariable=classe, width=30).grid(row=3, column=1, columnspan=2, padx=5)
+        Entry(windispo2, textvariable=ecole, width=30).grid(row=4, column=1, columnspan=2, padx=5)
+        # Boutons
+        Button(windispo2, text="Modifier", command= lambda :modifiedispodb(ref, nom.get(),email.get(),gsm.get(),classe.get(),ecole.get())).grid(row=5, column=1, padx=5, sticky=E + W)
+        Button(windispo2, text="Annuler", command=windispo2.destroy).grid(row=5, column=2, padx=5, pady=10,
+                                                                          sticky=E + W)
+    else:
+        showinfo("Attention", "Veuillez selectionner \nla ligne a modifier")
 
+def modifiedispodb(nom,email,gsm,classe,ecole,ref):
+    global windispo2
+    windispo2.destroy()
+    if nom !="" and email != "":
+        cur.execute("UPDATE disponibilites SET nom =? ,email = ?,gsm =?,classe =?,ecole =? WHERE livre_ref = ?", (nom, email, gsm, classe, ecole, ref))
+        db.commit()
+        remplissagedisp(ref)
+    else:
+        showinfo("Attention", "Veuillez selectionner \nla ligne a modifier")
 def supprimedispo(ref):
     global tabledisp
     if (tabledisp.focus()):
