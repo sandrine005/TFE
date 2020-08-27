@@ -75,6 +75,7 @@ def ajoutL():
     cur.execute(query, ("1943 l'espoir du retour", "Desplat anne", 789))
     cur.execute(query, ("1944-1945 Les sabots", "Vittori Jean", 367))
     db.commit()
+
 # Premiere fenetre livres-> crud
 # ref, titre, auteur, codeISBN
 # Bt - Ajouter un livre commande ajoute
@@ -161,6 +162,7 @@ def remplissage():
     # Ajouter les livres dans le treeview
     for livre in livres:
         tables.insert('', 'end', values=(livre[0], livre[1], livre[2], livre[3]))
+
 # Permet de supprimer
 def supprime():
     global tables
@@ -206,9 +208,11 @@ def windisp():
     ascenseurY.grid(row=0,column=5)
     tabledisp.config(show="headings", height=5, selectmode="browse", yscrollcommand=ascenseurY.set)
     ref = tables.item(tables.focus())["values"][0]
-    Button(fendisp, text="ajouter une dispo",command= lambda: voirdispo(ref) ).grid(row=1,column=0,padx=10,sticky=E+W)
-    Button(fendisp, text="modifier une dispo", command= lambda :modifiedispo()).grid(row=1,column=1,padx=10,sticky=E+W)
-    Button(fendisp, text="supprimer une dispo", command=supprimedispo).grid(row=1,column=2,padx=10,sticky=E+W)
+    Button(fendisp, text="ajouter une dispo",command=lambda:voirdispo(ref)).grid(row=1,column=0,padx=10,
+                                                                                   sticky=E+W)
+    Button(fendisp, text="modifier une dispo", command=lambda:modifiedispo(ref)).grid(row=1,column=1,padx=10,
+                                                                                    sticky=E+W)
+    Button(fendisp, text="supprimer une dispo", command=lambda:supprimedispo(ref)).grid(row=1, column=2,padx=10,sticky=E+W)
     Button(fendisp, text="Quitter", command=fendisp.destroy).grid(row=1,column=3,padx=10,sticky=E+W)
     remplissagedisp(ref)
 
@@ -228,99 +232,62 @@ def remplissagedisp(ref):
 
 # Nouvelle fenetre disponibilités
 def voirdispo(ref):
-        global windispo
-        windispo = Toplevel(root)
-        windispo.title("Disponibilité du livre selectionner")
-        # Déclaration des variables du formulaire
-        nom = StringVar()
-        email = StringVar()
-        gsm = StringVar()
-        classe = StringVar()
-        ecole = StringVar()
-        # Etiquette
-        Label(windispo, text="Nom").grid(row=0, column=0, pady=5, padx=5)
-        Label(windispo, text="Email").grid(row=1, column=0, pady=5, padx=5)
-        Label(windispo, text="Gsm").grid(row=2, column=0, pady=5, padx=5)
-        Label(windispo, text="Classe").grid(row=3, column=0, pady=5, padx=5)
-        Label(windispo, text="Ecole").grid(row=4, column=0, pady=5, padx=5)
-        # Les entrys
-        Entry(windispo, text=nom, width=30).grid(row=0, column=1, columnspan=2, padx=5)
-        Entry(windispo, text=email, width=30).grid(row=1, column=1, columnspan=2, padx=5)
-        Entry(windispo, text=gsm, width=30).grid(row=2, column=1, columnspan=2, padx=5)
-        Entry(windispo, text=classe, width=30).grid(row=3, column=1, columnspan=2, padx=5)
-        Entry(windispo, text=ecole, width=30).grid(row=4, column=1, columnspan=2, padx=5)
-        # Boutons
-        Button(windispo, text="Ajouter", command= lambda: ajoutedispo(ref,nom.get(),email.get(),gsm.get(),classe.get(),ecole.get())).grid(row=7, column=0, padx=5, sticky=E + W)
-        Button(windispo, text="Quitter", command=windispo.destroy).grid(row=7, column=3, padx=5, pady=10, sticky=E + W)
-def modifiedispo():
-    global winddispom
-    global tabledisp
-    if (tabledisp.focus()):
-        tnom = tabledisp.item(tabledisp.focus())["values"][1]
-        temail = tabledisp.item(tabledisp.focus())["values"][2]
-        tgsm = tabledisp.item(tabledisp.focus())["values"][3]
-        tclasse = tabledisp.item(tabledisp.focus())["values"][4]
-        tecole = tabledisp.item(tabledisp.focus())["values"][5]
-        ref = tabledisp.item(tabledisp.focus())["values"][0]
-
-        # création d'une fenêtre modal
-        windispom = Toplevel(root)
-        windispom.title("modif ")
-
-        # Déclaration des variables du formulaire
-        nom = StringVar()
-        email = StringVar()
-        gsm = StringVar()
-        classe = StringVar()
-        ecole = StringVar()
-
-        # Initialiser les variables
-        nom.set(tnom)
-        email.set(temail)
-        gsm.set(tgsm)
-        classe.set(tclasse)
-        ecole.set(tecole)
-
-        # etiquette
-        Label(windispom, text="Nom").grid(row=0, column=0, pady=5, padx=5)
-        Label(windispom, text="email").grid(row=1, column=0, pady=5, padx=5)
-        Label(windispom, text="gsm").grid(row=2, column=0, pady=5, padx=5)
-        Label(windispom, text="classe").grid(row=2, column=0, pady=5, padx=5)
-        Label(windispom, text="ecole").grid(row=2, column=0, pady=5, padx=5)
-
-        # Les entrys
-        Entry(windispom, textvariable=nom, width=30).grid(row=0, column=1, columnspan=2, padx=5)
-        Entry(windispom, textvariable=email, width=30).grid(row=1, column=1, columnspan=2, padx=5)
-        Entry(windispom, textvariable=gsm, width=30).grid(row=2, column=1, columnspan=2, padx=5)
-        Entry(windispom, textvariable=classe, width=30).grid(row=2, column=1, columnspan=2, padx=5)
-        Entry(windispom, textvariable=ecole, width=30).grid(row=2, column=1, columnspan=2, padx=5)
-
-        # Boutons
-        Button(windispom, text="Modifier", command=lambda: modifiedispodb(ref, nom.get(), email.get(),gsm.get(),classe.get(),ecole.get())).grid(row=3,column=1,padx=5,sticky=E + W)
-        Button(windispom, text="Annuler", command=windispom.destroy).grid(row=3, column=2, padx=5, pady=10, sticky=E + W)
-    else:
-        showinfo("Attention", "Veuillez sélectionner \nla ligne a modifier")
+    global windispo
+    windispo = Toplevel(root)
+    windispo.title("Disponibilité du livre selectionner")
+    # Déclaration des variables du formulaire
+    nom = StringVar()
+    email = StringVar()
+    gsm = StringVar()
+    classe = StringVar()
+    ecole = StringVar()
+    # Etiquette
+    Label(windispo, text="Nom").grid(row=0, column=0, pady=5, padx=5)
+    Label(windispo, text="Email").grid(row=1, column=0, pady=5, padx=5)
+    Label(windispo, text="Gsm").grid(row=2, column=0, pady=5, padx=5)
+    Label(windispo, text="Classe").grid(row=3, column=0, pady=5, padx=5)
+    Label(windispo, text="Ecole").grid(row=4, column=0, pady=5, padx=5)
+    # Les entrys
+    Entry(windispo, text=nom, width=30).grid(row=0, column=1, columnspan=2, padx=5)
+    Entry(windispo, text=email, width=30).grid(row=1, column=1, columnspan=2, padx=5)
+    Entry(windispo, text=gsm, width=30).grid(row=2, column=1, columnspan=2, padx=5)
+    Entry(windispo, text=classe, width=30).grid(row=3, column=1, columnspan=2, padx=5)
+    Entry(windispo, text=ecole, width=30).grid(row=4, column=1, columnspan=2, padx=5)
+    # Boutons
+    Button(windispo, text="Ajouter",
+           command=lambda: ajoutedispo(ref, nom.get(), email.get(), gsm.get(), classe.get(), ecole.get())).grid(row=7,
+                                                                                                                column=0,
+                                                                                                                padx=5,
+                                                                                                                sticky=E + W)
+    Button(windispo, text="Quitter", command=windispo.destroy).grid(row=7, column=3, padx=5, pady=10, sticky=E + W)
 
 
-def modifiedispodb(ref,nom,email,gsm,classe,ecole):
-    global windispom
-    windispom.destroy()
-    if nom != "" and email != "":
-        cur.execute("UPDATE disponibilites SET nom = ?, email = ?, gsm = ? WHERE livre_ref = ?", (nom,email, gsm,classe,ecole,ref))
-        db.commit()
-        remplissagedisp(ref)
-
-def supprimedispo(ref,nom,email,gsm,classe,ecole):
+def modifiedispo(ref):
     pass
 
 
+def supprimedispo(ref):
+    global tabledisp
+    if (tabledisp.focus()):
+        nom = tabledisp.item(tabledisp.focus())["values"][1]
+        email= tabledisp.item(tabledisp.focus())["values"][2]
+        ref = tables.item(tables.focus())["values"][0]
+        confirm = askokcancel("Ok ou annuler", "Suppression de " + nom + " " + email + " ?")
+        if confirm:
+            # supprimer le record
+            cur.execute("DELETE FROM disponibilites WHERE livre_ref = ?", (ref,))
+            db.commit()
+            remplissagedisp(ref)
+    else:
+        showinfo("Attention", "Veuillez sélectionner \nune ligne avant de \nsupprimer")
 
 
-def ajoutedispo(ref, nom, email, gsm, classe, ecole):
-        cur.execute("INSERT INTO disponibilites(nom, email,gsm,classe, ecole, livre_ref)VALUES (?,?,?,?,?,?)",
-                    (nom, email, gsm, classe, ecole, ref))
-        db.commit()
-        remplissagedisp(ref)
+
+def ajoutedispo(ref,nom,email,gsm, classe,ecole):
+    cur.execute("INSERT INTO disponibilites(nom, email,gsm,classe, ecole, livre_ref)VALUES (?,?,?,?,?,?)",
+                (nom, email, gsm, classe, ecole, ref))
+    db.commit()
+    remplissagedisp(ref)
 
 
 if __name__ == '__main__':
