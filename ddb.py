@@ -273,7 +273,7 @@ def modifiedispo(ref):
         ref = tables.item(tables.focus())["values"][0]
         # création d'une fenêtre modal
         windispo2 = Toplevel(root)
-        windispo2.title("modif ")
+        windispo2.title("modification de la disponibilité")
         # Déclaration des variables
         nom = StringVar()
         email = StringVar()
